@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useMemo  } from "react";
 import styled from "styled-components";
 import timerBg from "../assets/images/timer_bg_black.png";
 
@@ -119,10 +119,11 @@ const TimerBox = styled.div`
 
 
 
-
 export const Timer = () => {
   const [timeLeft, setTimeLeft] = useState({});
-  const eventDate = new Date("2024-12-28T00:00:00Z"); // Change this to the event end date
+
+  // Memoize the eventDate to avoid recreating it on every render
+  const eventDate = useMemo(() => new Date("2024-12-28T00:00:00Z"), []);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -144,7 +145,7 @@ export const Timer = () => {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [eventDate]); // eventDate is stable now due to useMemo
 
   return (
     <TimerContainer>
