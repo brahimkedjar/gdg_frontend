@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import contactPic from "../assets/images/gdg_balloons.svg";
 import { useState } from "react";
 
 const PageContainer = styled.div`
@@ -36,43 +35,8 @@ const ContentWrapper = styled.div`
   }
 `;
 
-const GDGIcon = styled.div`
-  display: none; /* Hide the image on all small screens */
 
-  @media (min-width: 769px) {
-    width: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-  }
-`;
 
-const IconImage = styled.div`
-  width: 80%;
-  height: 450px;
-  background: url(${contactPic}) no-repeat center;
-  background-size: contain;
-  animation: bounce 2s infinite;
-
-  @keyframes bounce {
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-    50% {
-      transform: translateY(-10px);
-    }
-  }
-
-  @media (max-width: 768px) {
-    width: 300px;
-    height: 300px;
-  }
-  @media (max-width: 350px) {
-    width: 0;
-    height: 0;
-  }
-`;
 
 const FormContainer = styled.div`
   width: 50%;
