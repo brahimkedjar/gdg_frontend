@@ -1,6 +1,12 @@
 import React, { useState, useLayoutEffect } from "react";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import timerBg from "../assets/images/timer_bg_black.png";
+
+const hackingEffect = keyframes`
+  0% { content: "_"; }
+  50% { content: "|"; }
+  100% { content: "_"; }
+`;
 
 const AppContainer = styled.div`
   min-height: 100vh;
@@ -24,6 +30,36 @@ const Container = styled.div`
   width: 100%;
 `;
 
+const HackingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(18, 18, 18, 0.95);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  color: #08f6f6;
+  font-family: "Courier New", Courier, monospace;
+
+  h1 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    font-size: 1.2rem;
+    margin: 0;
+    &::after {
+      content: "_";
+      animation: ${hackingEffect} 0.6s infinite;
+    }
+  }
+`;
+
 const Title = styled.h2`
   text-align: center;
   font-size: 2rem;
@@ -38,6 +74,52 @@ const Title = styled.h2`
   }
 `;
 
+const PopupAnimation = keyframes`
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+`;
+
+// Styled Popup component
+const Popup = styled.div`
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #08f6f6;
+  color: #121212;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  animation: ${PopupAnimation} 0.3s ease-out; /* Smooth fade-in animation */
+  z-index: 1000;
+
+  p {
+    font-size: 1.2rem;
+    margin: 0;
+  }
+
+  button {
+    margin-top: 15px;
+    padding: 10px 20px;
+    border: none;
+    background: #017373;
+    color: #fff;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+
+    &:hover {
+      background: #015b5b;
+    }
+  }
+`;
 const Navbar = styled.div`
   display: flex;
   border-bottom: 2px solid #444;
@@ -190,6 +272,15 @@ const RegistrationForm = () => {
   const [ideaDescription, setIdeaDescription] = useState("");
   const [competence, setCompetence] = useState("");
   const [isMobile, setIsMobile] = useState(null);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  useLayoutEffect(() => {
+    if (popupVisible) {
+      const timer = setTimeout(() => setPopupVisible(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [popupVisible]);
 
   useLayoutEffect(() => {
     const handleResize = () => {
@@ -241,10 +332,10 @@ const RegistrationForm = () => {
     return hasMedical && hasIT;
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    // Validation for team registration
+    setLoading(true); // Start the loading animation
+
     if (isTeam && !validateRoles()) {
       setError("Your team must have at least one member with an IT or Medical role.");
       return;
@@ -273,8 +364,10 @@ const RegistrationForm = () => {
         }] // For individual, only one member
       }
     };
-  
-    // Send the registration data to the backend
+  try{
+
+    await new Promise((resolve) => setTimeout(resolve, 3000));
+
     fetch('https://gdg-backend.onrender.com/registrations', {
       method: 'POST',
       headers: {
@@ -286,6 +379,25 @@ const RegistrationForm = () => {
     .then(data => {
       if (data.message) {
         setSuccess(true);
+        setPopupVisible(true);
+        fetch("http://localhost:3001/registrationsmail", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(registrationData),
+        })
+          .then((emailResponse) => emailResponse.json())
+          .then((emailData) => {
+            if (emailData.message) {
+              console.log("Emails sent successfully!");
+            } else {
+              console.error("Failed to send emails:", emailData.error);
+            }
+          })
+          .catch((error) => {
+            console.error("An error occurred while sending emails:", error);
+          });
         setTimeout(() => {
           window.location.href = "/"; // Redirect after success
         }, 2000);
@@ -293,14 +405,28 @@ const RegistrationForm = () => {
         setError(data.errors || "An error occurred. Please try again.");
       }
     })
-    .catch(error => {
-      setError("An error occurred. Please try again.");
-    });
-  };
+  }catch (error) {
+    setError("An error occurred. Please try again.");
+  } finally {
+    setLoading(false); // Stop the loading animation
+  }
+};
   
 
   return (
-    <AppContainer>
+    <AppContainer id="registration">
+      {loading && (
+        <HackingOverlay>
+          <h1>Processing Your Registration...</h1>
+          <p>Initializing the system</p>
+        </HackingOverlay>
+      )}
+      {popupVisible && (
+        <Popup>
+          <p>Registration Successful!</p>
+          <button onClick={() => setPopupVisible(false)}>Close</button>
+        </Popup>
+      )}
       <Container memberCount={members.length}>
         <Title>
           Hackathon <span>Registration</span>

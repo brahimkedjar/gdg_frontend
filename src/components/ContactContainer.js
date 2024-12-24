@@ -1,6 +1,5 @@
-import React from "react";
-import styled from "styled-components";
-import { useState } from "react";
+import React, { useState } from "react";
+import styled, { keyframes } from "styled-components";
 
 const PageContainer = styled.div`
   font-family: "Poppins", sans-serif;
@@ -12,16 +11,11 @@ const PageContainer = styled.div`
   align-items: center;
   padding: 20px;
   text-align: center;
-  @media (max-width: 350px) {
-    max-height: 60vh;
-    padding: 0;
-    margin: 0;
-  }
 `;
 
 const ContentWrapper = styled.div`
   display: flex;
-  justify-content: center; /* Center the form */
+  justify-content: center;
   align-items: center;
   width: 100%;
   max-width: 1200px;
@@ -31,12 +25,9 @@ const ContentWrapper = styled.div`
   @media (max-width: 768px) {
     flex-direction: column;
     text-align: center;
-    gap: 0; /* Remove the gap between elements */
+    gap: 0;
   }
 `;
-
-
-
 
 const FormContainer = styled.div`
   width: 50%;
@@ -60,9 +51,9 @@ const FormTitle = styled.h2`
 
   span {
     background: linear-gradient(180deg, #08f6f6, #017373);
-    -webkit-background-clip: text; /* Clip the background to the text */
-    -webkit-text-fill-color: transparent; /* Make the text transparent to show the gradient */
-    display: inline-block; /* Ensure the gradient applies properly */
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
   }
 `;
 
@@ -70,16 +61,6 @@ const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 15px;
-`;
-
-const NameFields = styled.div`
-  display: flex;
-  width: 100%;
-  gap: 15px;
-
-  @media (max-width: 480px) {
-    flex-direction: column;
-  }
 `;
 
 const Input = styled.input`
@@ -90,7 +71,7 @@ const Input = styled.input`
   background: #2c2c2c;
   color: #fff;
   font-size: 1rem;
-  box-sizing: border-box; /* Ensures padding doesn't cause overflow */
+  box-sizing: border-box;
 
   &:focus {
     outline: 2px solid #08f6f6;
@@ -107,7 +88,7 @@ const TextArea = styled.textarea`
   font-size: 1rem;
   resize: none;
   height: 100px;
-  box-sizing: border-box; /* Ensures padding doesn't cause overflow */
+  box-sizing: border-box;
 
   &:focus {
     outline: 2px solid #08f6f6;
@@ -130,6 +111,69 @@ const SubmitButton = styled.button`
   }
 `;
 
+// Modern Popup Styles
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+`;
+
+const PopupOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const PopupContainer = styled.div`
+  background: #1e1e1e;
+  color: #fff;
+  padding: 20px;
+  border-radius: 10px;
+  text-align: center;
+  max-width: 400px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  animation: ${fadeIn} 0.3s ease-in-out;
+
+  h2 {
+    color: #08f6f6;
+    margin-bottom: 10px;
+  }
+
+  p {
+    margin-bottom: 20px;
+    font-size: 1rem;
+    color: #d3d3d3;
+  }
+
+  button {
+    background: #08f6f6;
+    color: #121212;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s;
+
+    &:hover {
+      background: #017373;
+    }
+  }
+`;
+
 export const Contact = () => {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -137,6 +181,7 @@ export const Contact = () => {
     email: "",
     message: "",
   });
+  const [isPopupVisible, setPopupVisible] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -160,7 +205,7 @@ export const Contact = () => {
 
       const result = await response.json();
       if (response.ok) {
-        alert(result.message);
+        setPopupVisible(true); // Show the popup
         setFormData({ firstName: "", lastName: "", email: "", message: "" });
       } else {
         alert("Error: " + result.error);
@@ -171,31 +216,29 @@ export const Contact = () => {
   };
 
   return (
-    <PageContainer>
+    <PageContainer id="contact">
       <ContentWrapper>
         <FormContainer>
           <FormTitle>
             Contact <span>us</span>
           </FormTitle>
           <Form onSubmit={handleSubmit}>
-            <NameFields>
-              <Input
-                type="text"
-                name="firstName"
-                placeholder="First Name"
-                value={formData.firstName}
-                onChange={handleChange}
-                required
-              />
-              <Input
-                type="text"
-                name="lastName"
-                placeholder="Last Name"
-                value={formData.lastName}
-                onChange={handleChange}
-                required
-              />
-            </NameFields>
+            <Input
+              type="text"
+              name="firstName"
+              placeholder="First Name"
+              value={formData.firstName}
+              onChange={handleChange}
+              required
+            />
+            <Input
+              type="text"
+              name="lastName"
+              placeholder="Last Name"
+              value={formData.lastName}
+              onChange={handleChange}
+              required
+            />
             <Input
               type="email"
               name="email"
@@ -215,6 +258,16 @@ export const Contact = () => {
           </Form>
         </FormContainer>
       </ContentWrapper>
+
+      {isPopupVisible && (
+        <PopupOverlay>
+          <PopupContainer>
+            <h2>Message Sent!</h2>
+            <p>Thank you for reaching out. We will get back to you soon.</p>
+            <button onClick={() => setPopupVisible(false)}>Close</button>
+          </PopupContainer>
+        </PopupOverlay>
+      )}
     </PageContainer>
   );
 };

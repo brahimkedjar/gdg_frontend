@@ -148,7 +148,7 @@ export const Timer = () => {
   }, [eventDate]); // eventDate is stable now due to useMemo
 
   return (
-    <TimerContainer>
+    <TimerContainer id="hero">
       <RegistrationCloseText>Registration closes in:</RegistrationCloseText>
       <CountdownTimer>
         <TimerBox>

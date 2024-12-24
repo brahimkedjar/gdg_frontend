@@ -187,7 +187,7 @@ export const Hero = () => {
   const [hovered, setHovered] = useState(false);
 
   return (
-    <PageContainer>
+    <PageContainer id="">
       <ContentWrapper>
         <GDGIcon>
           <IconImage />

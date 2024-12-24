@@ -68,7 +68,7 @@ const IconImage = styled.div`
 
 export const Desciption = () => {
   return (
-    <SponsorsContainer id="sponsors">
+    <SponsorsContainer id="Description">
       <Icon>
         <IconImage />
       </Icon>
